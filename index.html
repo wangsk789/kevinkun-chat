@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+
+  </head>
+  <body>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script>
+      
+        var socket;
+		
+		
+
+	function connect(server){
+		socket=io(server);
+		
+		socket.on('connect', function () {
+			console.log("you connected to server");
+		});
+  
+		socket.on("joinedRoom", function(userList){
+			console.log("you joined room, users are " + JSON.stringify(userList));
+		});
+		
+		socket.on("otherJoinedRoom", function(newUser, userList){
+			console.log(newUser + " joined. ", JSON.stringify(userList));
+		});
+		
+		socket.on("otherLeftRoom", function(newUser, userList){
+			console.log(newUser + " left. ", JSON.stringify(userList));
+		});
+		
+		socket.on("message", function(user, eventName, eventMessage){
+			console.log(user + " emit a event: " + eventName + ":" + eventMessage);
+		});
+	}
+	
+	function joinRoom(room, user){
+		socket.emit("join", room, user);
+	}
+	  	  
+	function leaveRoom(){
+		socket.emit("leave");
+	  }
+	  
+	function emitEvent(eventName, eventMessage){
+		socket.emit("message", eventName, eventMessage);
+	}
+    </script>
+  </body>
+</html>
