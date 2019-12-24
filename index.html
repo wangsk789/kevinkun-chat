@@ -9,31 +9,58 @@
     <script>
       
         var socket;
-		
-		
-
-	function connect(server){
-		socket=io(server);
-		
+		socket=io();
 		socket.on('connect', function () {
-			console.log("you connected to server");
+			
+			var data ={};
+			data.type="connect";
+			window.AppInventor.setWebViewString(JSON.stringify(data));
+			console.log(JSON.stringify(data));
 		});
   
 		socket.on("joinedRoom", function(userList){
-			console.log("you joined room, users are " + JSON.stringify(userList));
+
+			var data ={};
+			data.type="joinedRoom";
+			data.users=userList;
+			window.AppInventor.setWebViewString(JSON.stringify(data));
+			console.log(JSON.stringify(data));
 		});
 		
 		socket.on("otherJoinedRoom", function(newUser, userList){
-			console.log(newUser + " joined. ", JSON.stringify(userList));
+
+			var data ={};
+			data.type="otherJoinedRoom";
+			data.user=newUser;
+			data.users=userList;
+			window.AppInventor.setWebViewString(JSON.stringify(data));
+			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("otherLeftRoom", function(newUser, userList){
-			console.log(newUser + " left. ", JSON.stringify(userList));
+		socket.on("otherLeftRoom", function(user, userList){
+
+			var data ={};
+			data.type="otherLeftRoom";
+			data.user=user;
+			data.users=userList;
+			window.AppInventor.setWebViewString(JSON.stringify(data));
+			console.log(JSON.stringify(data));
 		});
 		
 		socket.on("message", function(user, eventName, eventMessage){
-			console.log(user + " emit a event: " + eventName + ":" + eventMessage);
+
+			var data ={};
+			data.type="message";
+			data.from=user;
+			data.title=eventName;
+			data.content=eventMessage;
+			window.AppInventor.setWebViewString(JSON.stringify(data));
+			console.log(JSON.stringify(data));
 		});
+
+	function connect(server){
+		
+		
 	}
 	
 	function joinRoom(room, user){
