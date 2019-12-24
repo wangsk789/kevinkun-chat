@@ -14,7 +14,7 @@
 			
 			var data ={};
 			data.type="connect";
-			window.AppInventor.setWebViewString(JSON.stringify(data));
+			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
   
@@ -23,7 +23,7 @@
 			var data ={};
 			data.type="joinedRoom";
 			data.users=userList;
-			window.AppInventor.setWebViewString(JSON.stringify(data));
+			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
@@ -33,7 +33,15 @@
 			data.type="otherJoinedRoom";
 			data.user=newUser;
 			data.users=userList;
-			window.AppInventor.setWebViewString(JSON.stringify(data));
+			setWebViewString(data);
+			console.log(JSON.stringify(data));
+		});
+		socket.on("roomFull", function(roomName){
+
+			var data ={};
+			data.type="roomFull";
+			data.roomName=roomName;
+			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
@@ -43,7 +51,7 @@
 			data.type="otherLeftRoom";
 			data.user=user;
 			data.users=userList;
-			window.AppInventor.setWebViewString(JSON.stringify(data));
+			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
@@ -54,13 +62,14 @@
 			data.from=user;
 			data.title=eventName;
 			data.content=eventMessage;
-			window.AppInventor.setWebViewString(JSON.stringify(data));
+			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 
-	function connect(server){
-		
-		
+	function setWebViewString(d){
+		if(window.AppInventor){
+			window.AppInventor.setWebViewString(JSON.stringify(d));
+		}
 	}
 	
 	function joinRoom(room, user){
@@ -71,8 +80,8 @@
 		socket.emit("leave");
 	  }
 	  
-	function emitEvent(eventName, eventMessage){
-		socket.emit("message", eventName, eventMessage);
+	function sendMessage(title, content){
+		socket.emit("message", title, content);
 	}
     </script>
   </body>
