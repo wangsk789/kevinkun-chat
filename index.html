@@ -5,11 +5,12 @@
 
   </head>
   <body>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.2.0/socket.io.min.js"></script>
     <script>
       
-        var socket;
-		socket=io();
+        var socket=io();
+		var isLogin =false;
+		
 		socket.on('connect', function () {
 			
 			var data ={};
@@ -17,25 +18,30 @@
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
+		
+		socket.on("logedin", function(user,users){
+			isLogin = true;
+			var data ={};
+			data.type="logedin";
+			data.user=user;
+			data.users=users;
+			setWebViewString(data);
+			console.log(JSON.stringify(data));
+		});
   
-		socket.on("joinedRoom", function(userList){
-
+		socket.on("joinedRoom", function(username, roomname, userlist){
+			
 			var data ={};
 			data.type="joinedRoom";
-			data.users=userList;
+			data.username=username;
+			data.roomname=roomname;
+			data.userlist=userlist;
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("otherJoinedRoom", function(newUser, userList){
-
-			var data ={};
-			data.type="otherJoinedRoom";
-			data.user=newUser;
-			data.users=userList;
-			setWebViewString(data);
-			console.log(JSON.stringify(data));
-		});
+		
+		
 		socket.on("roomFull", function(roomName){
 
 			var data ={};
@@ -45,23 +51,62 @@
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("otherLeftRoom", function(user, userList){
+		socket.on("leftRoom", function(username, roomname, userlist){
 
 			var data ={};
-			data.type="otherLeftRoom";
-			data.user=user;
-			data.users=userList;
+			data.type="leftRoom";
+			data.username=username;
+			data.roomname=roomname;
+			data.userlist=userlist;
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("message", function(user, eventName, eventMessage){
+		socket.on("disconnect", function(username){
 
 			var data ={};
-			data.type="message";
+			data.type="disconnect";
+			data.username=username;
+			setWebViewString(data);
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("messageToRoom", function(user, room, content){
+
+			var data ={};
+			data.type="messageToRoom";
 			data.from=user;
-			data.title=eventName;
-			data.content=eventMessage;
+			data.room=room;
+			data.content=content;
+			setWebViewString(data);
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("messageToAll", function(user,  content){
+
+			var data ={};
+			data.type="messageToAll";
+			data.from=user;
+			data.content=content;
+			setWebViewString(data);
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("messageToUser", function(user, content){
+
+			var data ={};
+			data.type="messageToUser";
+			data.from=user;
+			data.content=content;
+			setWebViewString(data);
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("err", function(err){
+
+			var data ={};
+			data.type="error";
+			data.error=err;
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -72,16 +117,38 @@
 		}
 	}
 	
-	function joinRoom(room, user){
-		socket.emit("join", room, user);
+	function login(username){
+		socket.emit("login", username);
+	}
+	
+	function joinroom(roomname){
+		if(isLogin){
+			socket.emit("joinroom", roomname);
+		}
+		
 	}
 	  	  
-	function leaveRoom(){
-		socket.emit("leave");
+	function leaveroom(roomname){
+		if(isLogin){
+			socket.emit("leaveroom", roomname);
+		}
 	  }
 	  
-	function sendMessage(title, content){
-		socket.emit("message", title, content);
+	function messageToUser(user, content){
+		if(isLogin){
+			socket.emit("messageToUser",user,  content);
+		}
+	}
+	function messageToRoom(room,content){
+		if(isLogin){
+			socket.emit("messageToRoom", room, content);
+		}
+	}
+	
+	function messageToAll(content){
+		if(isLogin){
+			socket.emit("messageToAll", content);
+		}
 	}
     </script>
   </body>
