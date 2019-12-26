@@ -18,31 +18,31 @@ io.on('connection', function (socket) {
 		if(!users[username]){
 			socket.username=username;
 			users[username]=socket;
-			io.sockets.emit("logedin",username,Object.keys(users));
+			socket.emit("logedin");
 			console.log(socket.username +"登录服务器");
 		}
 	});
 	
-  socket.on('joinroom', function (roomName) {
+	socket.on('joinRoom', function (roomName) {
 
-    if (!rooms[roomName]) {
-      rooms[roomName] = [];
-    }
-	if(rooms[roomName].length > 1){
-		socket.emit("roomFull",roomName);
-	}else{
-		if(rooms[roomName].indexOf(socket.username)==-1){
-			rooms[roomName].push(socket.username);
-			socket.join(roomName); 
-			io.sockets.in(roomName).emit('joinedRoom', socket.username, roomName, rooms[roomName]);  
-			console.log(socket.username +"加入了"+ roomName+",房间用户："+ rooms[roomName]);
+		if (!rooms[roomName]) {
+		  rooms[roomName] = [];
 		}
-		
-	}
-    
-  });
+		// if(rooms[roomName].length > 1){
+			// socket.emit("roomFull",roomName);
+		// }else{
+			if(rooms[roomName].indexOf(socket.username)==-1){
+				rooms[roomName].push(socket.username);
+				socket.join(roomName); 
+				io.sockets.in(roomName).emit('joinedRoom', socket.username, roomName, rooms[roomName]);  
+				console.log(socket.username +"加入了"+ roomName+",房间用户："+ rooms[roomName]);
+			}
+			
+		//}
 
-  socket.on('leaveroom', function (roomName) {
+	});
+
+  socket.on('leaveRoom', function (roomName) {
 	if (rooms[roomName]){
 		var index = rooms[roomName].indexOf(socket.username);
 		if ( index !== -1) {
@@ -58,7 +58,7 @@ io.on('connection', function (socket) {
 	if (rooms[roomName]){
 		var index = rooms[roomName].indexOf(socket.username);
 		if ( index !== -1) {
-			io.sockets.in(roomName).emit('messageToRoom', socket.username, roomName, content); 
+			io.sockets.in(roomName).emit('gotMessageToRoom', socket.username, roomName, content); 
 			console.log(socket.username +"对"+ roomName+"中人说："+ content);
 		}
 	}
@@ -66,14 +66,14 @@ io.on('connection', function (socket) {
   
   socket.on('messageToAll', function (content) {
 
-		io.sockets.emit('messageToAll', socket.username, content); 
+		io.sockets.emit('gotMessageToAll', socket.username, content); 
 		console.log(socket.username +"对所有人说："+ content);
 
   });
   
    socket.on('messageToUser', function (user, content) {
 		if(users[user]){
-			io.to(users[user].id).emit('messageToUser', socket.username, content); 
+			io.to(users[user].id).emit('gotMessageToMe', socket.username, content); 
 			console.log(user +"对"+socket.username +"说："+ content);
 		}else{
 			socket.emit("err","no such user");
@@ -92,7 +92,7 @@ io.on('connection', function (socket) {
 		}
 	});
 	delete users[socket.username];
-	io.sockets.emit('disconnect', socket.username);
+	//io.sockets.emit('disconnect');
 	console.log(socket.username + '断开连接');
    
    

@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
-
+	<link rel="shortcut icon" href="#" />
   </head>
   <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.2.0/socket.io.min.js"></script>
@@ -19,12 +19,10 @@
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("logedin", function(user,users){
+		socket.on("logedin", function(){
 			isLogin = true;
 			var data ={};
 			data.type="logedin";
-			data.user=user;
-			data.users=users;
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -62,19 +60,18 @@
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("disconnect", function(username){
+		socket.on("disconnect", function(){
 
 			var data ={};
 			data.type="disconnect";
-			data.username=username;
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("messageToRoom", function(user, room, content){
+		socket.on("gotMessageToRoom", function(user, room, content){
 
 			var data ={};
-			data.type="messageToRoom";
+			data.type="gotMessageToRoom";
 			data.from=user;
 			data.room=room;
 			data.content=content;
@@ -82,20 +79,20 @@
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("messageToAll", function(user,  content){
+		socket.on("gotMessageToAll", function(user,  content){
 
 			var data ={};
-			data.type="messageToAll";
+			data.type="gotMessageToAll";
 			data.from=user;
 			data.content=content;
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("messageToUser", function(user, content){
+		socket.on("gotMessageToMe", function(user, content){
 
 			var data ={};
-			data.type="messageToUser";
+			data.type="gotMessageToMe";
 			data.from=user;
 			data.content=content;
 			setWebViewString(data);
@@ -121,16 +118,16 @@
 		socket.emit("login", username);
 	}
 	
-	function joinroom(roomname){
+	function joinRoom(roomname){
 		if(isLogin){
-			socket.emit("joinroom", roomname);
+			socket.emit("joinRoom", roomname);
 		}
 		
 	}
 	  	  
-	function leaveroom(roomname){
+	function leaveRoom(roomname){
 		if(isLogin){
-			socket.emit("leaveroom", roomname);
+			socket.emit("leaveRoom", roomname);
 		}
 	  }
 	  
