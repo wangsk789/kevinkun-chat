@@ -15,14 +15,17 @@
 			
 			var data ={};
 			data.type="connect";
+			//SocketIO.connected();
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("logedin", function(){
+		socket.on("logedin", function(username){
 			isLogin = true;
 			var data ={};
 			data.type="logedin";
+			data.username=username;
+			//SocketIO.logedin(username);
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -34,6 +37,7 @@
 			data.username=username;
 			data.roomname=roomname;
 			data.userlist=userlist;
+			//SocketIO.joinedRoom(username, roomname, JSON.stringify(userlist));
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -56,6 +60,7 @@
 			data.username=username;
 			data.roomname=roomname;
 			data.userlist=userlist;
+			//SocketIO.leftRoom(username, roomname, JSON.stringify(userlist));
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -64,6 +69,7 @@
 
 			var data ={};
 			data.type="disconnect";
+			//SocketIO.disconnect();
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -75,6 +81,7 @@
 			data.from=user;
 			data.room=room;
 			data.content=content;
+			//SocketIO.gotMessageToRoom(user, room, content);
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -85,6 +92,7 @@
 			data.type="gotMessageToAll";
 			data.from=user;
 			data.content=content;
+			//SocketIO.gotMessageToAll(user, content);
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -95,6 +103,7 @@
 			data.type="gotMessageToMe";
 			data.from=user;
 			data.content=content;
+			//SocketIO.gotMessageToMe(user, content);
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
@@ -104,6 +113,7 @@
 			var data ={};
 			data.type="error";
 			data.error=err;
+			//SocketIO.gotError(err);
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});

@@ -28,9 +28,9 @@ io.on('connection', function (socket) {
 		if (!rooms[roomName]) {
 		  rooms[roomName] = [];
 		}
-		// if(rooms[roomName].length > 1){
-			// socket.emit("roomFull",roomName);
-		// }else{
+		 if(rooms[roomName].length > 1){
+			 socket.emit("roomFull",roomName);
+		 }else{
 			if(rooms[roomName].indexOf(socket.username)==-1){
 				rooms[roomName].push(socket.username);
 				socket.join(roomName); 
@@ -38,7 +38,7 @@ io.on('connection', function (socket) {
 				console.log(socket.username +"加入了"+ roomName+",房间用户："+ rooms[roomName]);
 			}
 			
-		//}
+		}
 
 	});
 
