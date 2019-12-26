@@ -14,7 +14,7 @@
 		socket.on('connect', function () {
 			
 			var data ={};
-			data.type="connect";
+			data.type="connected";
 			//SocketIO.connected();
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
@@ -68,7 +68,7 @@
 		socket.on("disconnect", function(){
 
 			var data ={};
-			data.type="disconnect";
+			data.type="disconnected";
 			//SocketIO.disconnect();
 			setWebViewString(data);
 			console.log(JSON.stringify(data));
@@ -111,7 +111,7 @@
 		socket.on("err", function(err){
 
 			var data ={};
-			data.type="error";
+			data.type="gotError";
 			data.error=err;
 			//SocketIO.gotError(err);
 			setWebViewString(data);
