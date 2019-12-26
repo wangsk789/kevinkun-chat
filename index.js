@@ -18,7 +18,7 @@ io.on('connection', function (socket) {
 		if(!users[username]){
 			socket.username=username;
 			users[username]=socket;
-			socket.emit("logedin",username);
+			socket.emit("logedin");
 			console.log(socket.username +"登录服务器");
 		}
 	});
