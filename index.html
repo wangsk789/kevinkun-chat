@@ -12,109 +12,56 @@
 		var isLogin =false;
 		
 		socket.on('connect', function () {
-			
 			var data ={};
 			data.type="connected";
-			//SocketIO.connected();
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("logedin", function(username){
+		socket.on("logedin", function(data){
 			isLogin = true;
-			var data ={};
 			data.type="logedin";
-			data.username=username;
-			//SocketIO.logedin(username);
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
   
-		socket.on("joinedRoom", function(username, roomname, userlist){
-			
-			var data ={};
+		socket.on("joinedRoom", function(data){
 			data.type="joinedRoom";
-			data.username=username;
-			data.roomname=roomname;
-			data.userlist=userlist;
-			//SocketIO.joinedRoom(username, roomname, JSON.stringify(userlist));
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
 		
-		
-		socket.on("roomFull", function(roomName){
-
-			var data ={};
+		socket.on("roomFull", function(data){
 			data.type="roomFull";
-			data.roomName=roomName;
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("leftRoom", function(username, roomname, userlist){
-
-			var data ={};
+		socket.on("leftRoom", function(data){
 			data.type="leftRoom";
-			data.username=username;
-			data.roomname=roomname;
-			data.userlist=userlist;
-			//SocketIO.leftRoom(username, roomname, JSON.stringify(userlist));
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
 		socket.on("disconnect", function(){
-
 			var data ={};
 			data.type="disconnected";
-			//SocketIO.disconnect();
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("gotMessageToRoom", function(user, room, content){
-
-			var data ={};
+		socket.on("gotMessageToRoom", function(data){
 			data.type="gotMessageToRoom";
-			data.from=user;
-			data.room=room;
-			data.content=content;
-			//SocketIO.gotMessageToRoom(user, room, content);
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("gotMessageToAll", function(user,  content){
-
-			var data ={};
+		socket.on("gotMessageToAll", function(data){
 			data.type="gotMessageToAll";
-			data.from=user;
-			data.content=content;
-			//SocketIO.gotMessageToAll(user, content);
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("gotMessageToMe", function(user, content){
-
-			var data ={};
+		socket.on("gotMessageToMe", function(data){
 			data.type="gotMessageToMe";
-			data.from=user;
-			data.content=content;
-			//SocketIO.gotMessageToMe(user, content);
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("err", function(err){
-
-			var data ={};
+		socket.on("err", function(data){
 			data.type="gotError";
-			data.error=err;
-			//SocketIO.gotError(err);
-			setWebViewString(data);
 			console.log(JSON.stringify(data));
 		});
 
