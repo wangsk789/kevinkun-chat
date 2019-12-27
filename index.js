@@ -131,6 +131,6 @@ io.on('connection', function (socket) {
 
 
 });
-http.listen(port, '192.168.0.103',function(){
+http.listen(port, function(){
   console.log('listening on *:' + port);
 });
