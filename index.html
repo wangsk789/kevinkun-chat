@@ -1,7 +1,7 @@
-<!doctype html>
+<!doceventname html>
 <html>
   <head>
-    <title>Socket.IO chat</title>
+    <title>chat</title>
 	<link rel="shortcut icon" href="#" />
   </head>
   <body>
@@ -13,55 +13,65 @@
 		
 		socket.on('connect', function () {
 			var data ={};
-			data.type="connected";
+			data.eventname="connected";
 			console.log(JSON.stringify(data));
 		});
 		
 		socket.on("logedin", function(data){
 			isLogin = true;
-			data.type="logedin";
+			data.eventname="logedin";
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("otherLogedin", function(data){
+			data.eventname="otherLogedin";
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("otherLogedout", function(data){
+
+			data.eventname="otherLogedout";
 			console.log(JSON.stringify(data));
 		});
   
 		socket.on("joinedRoom", function(data){
-			data.type="joinedRoom";
+			data.eventname="joinedRoom";
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on("otherJoinedRoom", function(data){
+			data.eventname="otherJoinedRoom";
 			console.log(JSON.stringify(data));
 		});
 		
 		
 		socket.on("roomFull", function(data){
-			data.type="roomFull";
+			data.eventname="roomFull";
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("leftRoom", function(data){
-			data.type="leftRoom";
+		socket.on("otherLeftRoom", function(data){
+			data.eventname="otherLeftRoom";
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("disconnect", function(){
-			var data ={};
-			data.type="disconnected";
+		socket.on("gotRoomMessage", function(data){
+			data.eventname="gotRoomMessage";
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("gotMessageToRoom", function(data){
-			data.type="gotMessageToRoom";
+		socket.on("gotPublicMessage", function(data){
+			data.eventname="gotPublicMessage";
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("gotMessageToAll", function(data){
-			data.type="gotMessageToAll";
-			console.log(JSON.stringify(data));
-		});
-		
-		socket.on("gotMessageToMe", function(data){
-			data.type="gotMessageToMe";
+		socket.on("gotPrivateMessage", function(data){
+			data.eventname="gotPrivateMessage";
 			console.log(JSON.stringify(data));
 		});
 		
 		socket.on("err", function(data){
-			data.type="gotError";
+			data.eventname="gotError";
 			console.log(JSON.stringify(data));
 		});
 
@@ -88,20 +98,20 @@
 		}
 	  }
 	  
-	function messageToUser(user, content){
+	function privateMessage(user, content){
 		if(isLogin){
-			socket.emit("messageToUser",user,  content);
+			socket.emit("privateMessage",user,  content);
 		}
 	}
-	function messageToRoom(room,content){
+	function roomMessage(room,content){
 		if(isLogin){
-			socket.emit("messageToRoom", room, content);
+			socket.emit("roomMessage", room, content);
 		}
 	}
 	
-	function messageToAll(content){
+	function publicMessage(content){
 		if(isLogin){
-			socket.emit("messageToAll", content);
+			socket.emit("publicMessage", content);
 		}
 	}
     </script>

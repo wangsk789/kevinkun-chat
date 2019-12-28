@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 5050;
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -10,18 +10,22 @@ app.get('/', function(req, res){
 
 var rooms = {};
 var users = {};
+var numUsers=0;
 
 io.on('connection', function (socket) {
 
 	
 	socket.on("login",function (username){
-		if(!users[username]){
+		if(!socket.username){
 			socket.username=username;
 			users[username]=socket;
-			var data ={}
+			++numUsers;
+			var data ={};
 			data.username = socket.username;
+			data.numusers=numUsers;
 			socket.emit("logedin",data);
-			console.log(socket.username +"登录服务器");
+			socket.broadcast.emit("otherLogedin",data);
+			console.log(socket.username +"登录服务器,人数"+numUsers);
 		}
 	});
 	
@@ -30,23 +34,29 @@ io.on('connection', function (socket) {
 		if (!rooms[roomName]) {
 		  rooms[roomName] = [];
 		}
-		 if(rooms[roomName].length > 1){
-			 var data ={}
-				data.roomname = roomName;
-			 socket.emit("roomFull",data);
-		 }else{
+		 // if(rooms[roomName].length > 1){
+			 // var data ={}
+				// data.roomname = roomName;
+			 // socket.emit("roomFull",data);
+		 // }else{
 			if(rooms[roomName].indexOf(socket.username)==-1){
 				rooms[roomName].push(socket.username);
 				socket.join(roomName); 
-				var data ={}
+				var data ={};
 				data.username = socket.username;
 				data.roomname = roomName;
 				data.userlist = rooms[roomName];
-				io.sockets.in(roomName).emit('joinedRoom', data);  
+				socket.emit("joinedRoom",data);
+				socket.broadcast.in(roomName).emit('otherJoinedRoom', data);  
+				
 				console.log(socket.username +"加入了"+ roomName+",房间用户："+ rooms[roomName]);
+			}else{
+				var data ={};
+				data.error = "duplicate username";
+				socket.emit("err",data);
 			}
 			
-		}
+		//}
 
 	});
 
@@ -56,50 +66,65 @@ io.on('connection', function (socket) {
 		if ( index !== -1) {
 			rooms[roomName].splice(index, 1);
 			socket.leave(roomName);
-			var data ={}
-				data.username = socket.username;
-				data.roomname = roomName;
-				data.userlist = rooms[roomName];
-			io.sockets.in(roomName).emit('leftRoom', data); 
+			var data ={};
+			data.username = socket.username;
+			data.roomname = roomName;
+			data.userlist = rooms[roomName];
+			io.sockets.in(roomName).emit('otherLeftRoom', data); 
 			console.log(socket.username +"离开了"+ roomName+",剩余用户："+ rooms[roomName]);
+		}else{
+			var data ={};
+			data.error = "no such room or not in it";
+			socket.emit("err",data);
 		}
+	}else{
+			var data ={};
+			data.error = "no such room or not in it";
+			socket.emit("err",data);
 	}
   });
   
-  socket.on('messageToRoom', function (roomName, content) {
+  socket.on('roomMessage', function (roomName, content) {
 	if (rooms[roomName]){
 		var index = rooms[roomName].indexOf(socket.username);
 		if ( index !== -1) {
-			var data ={}
-				data.username = socket.username;
-				data.roomname = roomName;
-				data.content = content;
-			io.sockets.in(roomName).emit('gotMessageToRoom', data); 
+			var data ={};
+			data.username = socket.username;
+			data.roomname = roomName;
+			data.content = content;
+			socket.broadcast.in(roomName).emit('gotRoomMessage', data); 
 			console.log(socket.username +"对"+ roomName+"中人说："+ content);
+		}else{
+			var data ={};
+			data.error = "no such room or not in it";
+			socket.emit("err",data);
 		}
+	}else{
+			var data ={};
+			data.error = "no such room or not in it";
+			socket.emit("err",data);
 	}
   });
   
-  socket.on('messageToAll', function (content) {
-		var data ={}
-				data.username = socket.username;
-				data.content = content;
-		io.sockets.emit('gotMessageToAll', data); 
+  socket.on('publicMessage', function (content) {
+		var data ={};
+		data.username = socket.username;
+		data.content = content;
+		socket.broadcast.emit('gotPublicMessage', data); 
 		console.log(socket.username +"对所有人说："+ content);
 
   });
   
-   socket.on('messageToUser', function (user, content) {
+   socket.on('privateMessage', function (user, content) {
 		if(users[user]){
-			var data ={}
-				data.username = socket.username;
-				data.content = content;
-			io.to(users[user].id).emit('gotMessageToMe', data); 
+			var data ={};
+			data.username = socket.username;
+			data.content = content;
+			io.to(users[user].id).emit('gotPrivateMessage', data); 
 			console.log(user +"对"+socket.username +"说："+ content);
 		}else{
-			var data ={}
-				data.error = "no such user";
-
+			var data ={};
+			data.error = "no such user";
 			socket.emit("err",data);
 		}
 		
@@ -107,23 +132,26 @@ io.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
+	  if(!socket.username){return;}
 	Object.keys(rooms).forEach(function(key){
 		var index = rooms[key].indexOf(socket.username);
 		if (index !== -1) {
 			rooms[key].splice(index, 1);
 			socket.leave(key);
-			var data ={}
-				data.username = socket.username;
-				data.roomname = roomName;
-				data.userlist = rooms[key];
-			io.sockets.in(key).emit('leftRoom',data);
+			var data ={};
+			data.username = socket.username;
+			data.roomname = key;
+			data.userlist = rooms[key];
+			io.sockets.in(key).emit('otherLeftRoom',data);
 		}
 	});
-	
-	console.log(socket.username + '断开连接');
+	--numUsers;
+	var data ={};
+	data.username = socket.username;
+	data.numusers=numUsers;
+	socket.broadcast.emit('otherLogedout',data);
+	console.log(socket.username + '断开连接,剩余人数'+numUsers,);
 	delete users[socket.username];
-	//io.sockets.emit('disconnect');
-	
    
    
   });

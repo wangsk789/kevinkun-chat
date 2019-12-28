@@ -1,10 +1,13 @@
 {
-  "name": "socket-chat-example",
+  "name": "SocketIO_Chat_Server",
   "version": "0.0.1",
-  "description": "my first socket.io app",
+  "description": "back end for SocketIO extension",
   "dependencies": {
     "express": "^4.15.2",
     "socket.io": "^1.7.3"
+  },
+  "engines": {
+    "node": "10.15.3"
   },
   "scripts": {
     "start": "node index.js"
