@@ -16,7 +16,7 @@ io.on('connection', function (socket) {
 
 	
 	socket.on("login",function (username){
-		if(!socket.username){
+		if(!users[username]){
 			socket.username=username;
 			users[username]=socket;
 			++numUsers;
@@ -26,7 +26,9 @@ io.on('connection', function (socket) {
 			socket.emit("logedin",data);
 			socket.broadcast.emit("otherLogedin",data);
 			console.log(socket.username +"登录服务器,人数"+numUsers);
-		}
+		}else{
+				socket.emit("err","duplicate username");
+			}
 	});
 	
 	socket.on('joinRoom', function (roomName) {
@@ -50,10 +52,6 @@ io.on('connection', function (socket) {
 				socket.broadcast.in(roomName).emit('otherJoinedRoom', data);  
 				
 				console.log(socket.username +"加入了"+ roomName+",房间用户："+ rooms[roomName]);
-			}else{
-				var data ={};
-				data.error = "duplicate username";
-				socket.emit("err",data);
 			}
 			
 		//}
@@ -73,14 +71,10 @@ io.on('connection', function (socket) {
 			io.sockets.in(roomName).emit('otherLeftRoom', data); 
 			console.log(socket.username +"离开了"+ roomName+",剩余用户："+ rooms[roomName]);
 		}else{
-			var data ={};
-			data.error = "no such room or not in it";
-			socket.emit("err",data);
+			socket.emit("err","no such room or not in it");
 		}
 	}else{
-			var data ={};
-			data.error = "no such room or not in it";
-			socket.emit("err",data);
+			socket.emit("err","no such room or not in it");
 	}
   });
   
@@ -95,14 +89,10 @@ io.on('connection', function (socket) {
 			socket.broadcast.in(roomName).emit('gotRoomMessage', data); 
 			console.log(socket.username +"对"+ roomName+"中人说："+ content);
 		}else{
-			var data ={};
-			data.error = "no such room or not in it";
-			socket.emit("err",data);
+			socket.emit("err","no such room or not in it");
 		}
 	}else{
-			var data ={};
-			data.error = "no such room or not in it";
-			socket.emit("err",data);
+			socket.emit("err","no such room or not in it");
 	}
   });
   
@@ -123,16 +113,14 @@ io.on('connection', function (socket) {
 			io.to(users[user].id).emit('gotPrivateMessage', data); 
 			console.log(user +"对"+socket.username +"说："+ content);
 		}else{
-			var data ={};
-			data.error = "no such user";
-			socket.emit("err",data);
+			socket.emit("err","no such user");
 		}
 		
 
   });
 
   socket.on('disconnect', function () {
-	  if(!socket.username){return;}
+	if(!socket.username){return;}
 	Object.keys(rooms).forEach(function(key){
 		var index = rooms[key].indexOf(socket.username);
 		if (index !== -1) {

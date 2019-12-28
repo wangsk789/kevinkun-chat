@@ -10,10 +10,21 @@
       
         var socket=io();
 		var isLogin =false;
+		var isConnect =false;
 		
 		socket.on('connect', function () {
+			isConnect=true;
 			var data ={};
 			data.eventname="connected";
+			console.log(JSON.stringify(data));
+		});
+		
+		socket.on('disconnect', function (reason) {
+			isConnect=false;
+			isLogin=false;
+			var data ={};
+			data.eventname="disconnect";
+			data.reason = reason;
 			console.log(JSON.stringify(data));
 		});
 		
@@ -70,15 +81,40 @@
 			console.log(JSON.stringify(data));
 		});
 		
-		socket.on("err", function(data){
-			data.eventname="gotError";
+	
+		socket.on("err", function(reason){
+			var data ={};
+			data.eventname="userError";
+			data.reason = reason;
 			console.log(JSON.stringify(data));
+		});
+		socket.on("connect_error", function(reason){
+			isLogin =false;
+			isConnect=false;
+			console.log(JSON.stringify(reason));
+		});
+		socket.on("connect_timeout", function(reason){
+			isLogin=false;
+			isConnect=false;
+			console.log(JSON.stringify(reason));
+		});
+		socket.on("error", function(reason){
+
+			console.log(JSON.stringify(reason));
 		});
 
 	function setWebViewString(d){
 		if(window.AppInventor){
 			window.AppInventor.setWebViewString(JSON.stringify(d));
 		}
+	}
+	
+	function disconnect(){
+		socket.close();
+	}
+	
+	function connect(){
+		socket.open();
 	}
 	
 	function login(username){
