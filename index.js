@@ -31,45 +31,52 @@ io.on('connection', function (socket) {
 			}
 	});
 	
-	socket.on('joinRoom', function (roomName) {
+	socket.on('joinRoom', function (roomName, maxUser) {
 
 		if (!rooms[roomName]) {
-		  rooms[roomName] = [];
+		  rooms[roomName] ={};
+		  rooms[roomName].maxUser = maxUser;
+		  rooms[roomName].userlist = [];
+		  
 		}
-		 // if(rooms[roomName].length > 1){
-			 // var data ={}
-				// data.roomname = roomName;
-			 // socket.emit("roomFull",data);
-		 // }else{
-			if(rooms[roomName].indexOf(socket.username)==-1){
-				rooms[roomName].push(socket.username);
+		if(rooms[roomName].userlist.length >=rooms[roomName].maxUser){
+				socket.emit("err","room full");
+		}else{
+			if(rooms[roomName].userlist.indexOf(socket.username)==-1){
+				rooms[roomName].userlist.push(socket.username);
 				socket.join(roomName); 
 				var data ={};
 				data.username = socket.username;
 				data.roomname = roomName;
-				data.userlist = rooms[roomName];
+				data.userlist = rooms[roomName].userlist;
 				socket.emit("joinedRoom",data);
 				socket.broadcast.in(roomName).emit('otherJoinedRoom', data);  
 				
-				console.log(socket.username +"加入了"+ roomName+",房间用户："+ rooms[roomName]);
+				console.log(socket.username +"加入了"+ roomName+",房间用户："+ data.userlist+",人数："+ data.userlist.length);
+			}else{
+				socket.emit("err","already in room");
 			}
 			
-		//}
+		}
 
 	});
 
   socket.on('leaveRoom', function (roomName) {
 	if (rooms[roomName]){
-		var index = rooms[roomName].indexOf(socket.username);
+		var index = rooms[roomName].userlist.indexOf(socket.username);
 		if ( index !== -1) {
-			rooms[roomName].splice(index, 1);
+			rooms[roomName].userlist.splice(index, 1);
 			socket.leave(roomName);
 			var data ={};
 			data.username = socket.username;
 			data.roomname = roomName;
-			data.userlist = rooms[roomName];
+			data.userlist = rooms[roomName].userlist;
 			io.sockets.in(roomName).emit('otherLeftRoom', data); 
-			console.log(socket.username +"离开了"+ roomName+",剩余用户："+ rooms[roomName]);
+			console.log(socket.username +"离开了"+ roomName+",剩余用户："+ data.userlist +",人数："+ data.userlist.length);
+			if(data.userlist.length<=0){
+				delete rooms[roomName];
+				console.log(roomName +"已销毁");
+			}
 		}else{
 			socket.emit("err","no such room or not in it");
 		}
@@ -80,7 +87,7 @@ io.on('connection', function (socket) {
   
   socket.on('roomMessage', function (roomName, content) {
 	if (rooms[roomName]){
-		var index = rooms[roomName].indexOf(socket.username);
+		var index = rooms[roomName].userlist.indexOf(socket.username);
 		if ( index !== -1) {
 			var data ={};
 			data.username = socket.username;
@@ -88,6 +95,7 @@ io.on('connection', function (socket) {
 			data.content = content;
 			socket.broadcast.in(roomName).emit('gotRoomMessage', data); 
 			console.log(socket.username +"对"+ roomName+"中人说："+ content);
+			
 		}else{
 			socket.emit("err","no such room or not in it");
 		}
@@ -122,14 +130,14 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
 	if(!socket.username){return;}
 	Object.keys(rooms).forEach(function(key){
-		var index = rooms[key].indexOf(socket.username);
+		var index = rooms[key].userlist.indexOf(socket.username);
 		if (index !== -1) {
-			rooms[key].splice(index, 1);
+			rooms[key].userlist.splice(index, 1);
 			socket.leave(key);
 			var data ={};
 			data.username = socket.username;
 			data.roomname = key;
-			data.userlist = rooms[key];
+			data.userlist = rooms[key].userlist;
 			io.sockets.in(key).emit('otherLeftRoom',data);
 		}
 	});
@@ -143,6 +151,15 @@ io.on('connection', function (socket) {
    
    
   });
+  
+  // socket.on('adminreset', function () {
+		// rooms = {};
+		// users = {};
+		// numUsers=0;
+		
+		// io.sockets.emit('err',"server reset, pls re-connect");
+   
+  // });
 
 
 

@@ -55,12 +55,6 @@
 			console.log(JSON.stringify(data));
 		});
 		
-		
-		socket.on("roomFull", function(data){
-			data.eventname="roomFull";
-			console.log(JSON.stringify(data));
-		});
-		
 		socket.on("otherLeftRoom", function(data){
 			data.eventname="otherLeftRoom";
 			console.log(JSON.stringify(data));
@@ -117,13 +111,17 @@
 		socket.open();
 	}
 	
+	<!-- function adminreset(){ -->
+		<!-- socket.emit("adminreset"); -->
+	<!-- } -->
+	
 	function login(username){
 		socket.emit("login", username);
 	}
 	
-	function joinRoom(roomname){
+	function joinOrCreateRoom(roomname,maxuser){
 		if(isLogin){
-			socket.emit("joinRoom", roomname);
+			socket.emit("joinRoom", roomname,maxuser);
 		}
 		
 	}
