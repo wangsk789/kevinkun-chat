@@ -93,7 +93,8 @@ io.on('connection', function (socket) {
 			data.username = socket.username;
 			data.roomname = roomName;
 			data.content = content;
-			socket.broadcast.in(roomName).emit('gotRoomMessage', data); 
+			//socket.broadcast.in(roomName).emit('gotRoomMessage', data); 
+			io.sockets.in(roomName).emit('gotRoomMessage', data); 
 			console.log(socket.username +"对"+ roomName+"中人说："+ content);
 			
 		}else{
@@ -108,7 +109,8 @@ io.on('connection', function (socket) {
 		var data ={};
 		data.username = socket.username;
 		data.content = content;
-		socket.broadcast.emit('gotPublicMessage', data); 
+		//socket.broadcast.emit('gotPublicMessage', data); 
+		io.sockets.emit('gotPublicMessage', data); 
 		console.log(socket.username +"对所有人说："+ content);
 
   });
