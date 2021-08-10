@@ -78,23 +78,34 @@
 	
 		socket.on("err", function(reason){
 			var data ={};
-			data.eventname="userError";
+			data.eventname="gotError";
 			data.reason = reason;
 			showMessage(JSON.stringify(data));
 		});
+		
 		socket.on("connect_error", function(reason){
 			isLogin =false;
 			isConnect=false;
-			showMessage(JSON.stringify(reason));
+			var data ={};
+			data.eventname="gotError";
+			data.reason = reason;
+			showMessage(JSON.stringify(data));
 		});
+		
 		socket.on("connect_timeout", function(reason){
 			isLogin=false;
 			isConnect=false;
-			showMessage(JSON.stringify(reason));
+			var data ={};
+			data.eventname="gotError";
+			data.reason = reason;
+			showMessage(JSON.stringify(data));
 		});
+		
 		socket.on("error", function(reason){
-
-			showMessage(JSON.stringify(reason));
+			var data ={};
+			data.eventname="gotError";
+			data.reason = reason;
+			showMessage(JSON.stringify(data));
 		});
 
 	function showMessage(d){
