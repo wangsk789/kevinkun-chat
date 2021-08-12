@@ -54,6 +54,11 @@
 			data.eventname="otherJoinedRoom";
 			showMessage(JSON.stringify(data));
 		});
+	    
+	    	socket.on("leftRoom", function(data){
+			data.eventname="leftRoom";
+			showMessage(JSON.stringify(data));
+		});
 		
 		socket.on("otherLeftRoom", function(data){
 			data.eventname="otherLeftRoom";
