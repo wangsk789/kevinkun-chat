@@ -70,6 +70,7 @@ io.on('connection', function (socket) {
 			var data ={};
 			data.username = socket.username;
 			data.roomname = roomName;
+			socket.emit("leftRoom",data);
 			data.userlist = rooms[roomName].userlist;
 			io.sockets.in(roomName).emit('otherLeftRoom', data); 
 			console.log(socket.username +"离开了"+ roomName+",剩余用户："+ data.userlist +",人数："+ data.userlist.length);
